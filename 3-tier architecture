@@ -1,0 +1,143 @@
+Demo :
+
+Step 1: 
+
+- open asp.net web application - empty project -- add webform (userRegistration)
+
+design code:
+
+<form id="form1" runat="server">
+        <div>
+            <table class="auto-style1">
+                <tr>
+                    <td colspan="2"><b>Three Tire Demo</b></td>
+                </tr>
+                <tr>
+                    <td class="auto-style2">Name</td>
+                    <td>
+                        <asp:TextBox ID="TextBox1" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="auto-style2">City</td>
+                    <td>
+                        <asp:TextBox ID="TextBox2" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="auto-style2">Email</td>
+                    <td><b></b>
+                        <asp:TextBox ID="TextBox3" runat="server"></asp:TextBox>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <asp:Button ID="Button1" runat="server" OnClick="Button1_Click" Text="Save" />
+ <asp:GridView ID="GridView1" runat="server">
+        </asp:GridView>
+    </form>
+
+
+
+-create a table in database
+
+CREATE TABLE user007 (
+    id int IDENTITY(1,1) PRIMARY KEY,
+     Name varchar(255) NOT NULL,
+    city varchar(255),
+    email varchar(255)
+)
+
+
+- right solution -- add new project -- class library --DAL
+
+
+code:
+
+using System.Data.SqlClient;
+using System.Data;
+
+namespace DAL
+{
+    public class Class1
+    {
+    }
+    public class DL
+    {
+        SqlConnection con = new SqlConnection(@"Data Source=demoj.database.windows.net,1433;Initial Catalog=SampleJ;Persist Security Info=False;User ID=jenifery1486;Password=Mira@14251986");
+        public void insertData(string name, string city, string email)
+        {
+            SqlDataAdapter sda = new SqlDataAdapter("insert into user007 values('"+name+"','"+city+"','"+email+"')",con);
+            DataTable dt = new DataTable();
+            sda.Fill(dt);
+
+
+        }
+        public object selectData()
+        {
+            SqlDataAdapter sda = new SqlDataAdapter("select * from user007", con);
+            DataTable dt = new DataTable();
+            sda.Fill(dt);
+            return dt;
+
+        }
+    }
+
+}
+
+
+--right click project add new class library(BL)
+
+* right click and add project references DAL- ok
+*code:
+
+using DAL;
+
+namespace BL
+{
+    public class Class1
+    {
+    }
+    public class BLL
+    {
+        DL ob1 = new DL();
+        public void inputUser(string name, string city, string email)
+        {
+            ob1.insertData(name, city, email);
+        }
+        public object selectUser()
+        {
+            return ob1.selectData();
+        }
+    }
+}
+
+
+
+--right click project and add reference of BL
+
+CODE:
+
+using BL;
+
+namespace _3tierdemo
+{
+    public partial class userRegistration : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+            BLL ob2 = new BLL();
+            ob2.inputUser(TextBox1.Text, TextBox2.Text, TextBox3.Text);
+            GridView1.DataSource = ob2.selectUser();
+            GridView1.DataBind();
+        }
+    }
+}
+
+
+
